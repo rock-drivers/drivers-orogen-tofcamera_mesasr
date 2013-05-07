@@ -1,0 +1,68 @@
+name "tofcamera_mesa_swissranger"
+# Optionally declare the version number
+# version "0.1"
+
+import_types_from "base"
+using_library "tofcamera_mesa_swissranger"
+
+import_types_from "tofcamera_mesa_swissranger/SwissRangerTypes.hpp"
+
+task_context "Task" do
+   needs_configuration
+
+   property('acquisition_mode', 'std::string', 'AM_COR_FIX_PTRN|AM_CONV_GRAY|AM_DENOISE_ANF').
+	doc ('Acquisition mode, use bitwise OR operator to turn on multiple modes at the same time; possible values: AM_COR_FIX_PTRN, AM_MEDIAN, AM_TOGGLE_FRQ, AM_CONV_GRAY, AM_SW_ANF, AM_RESERVED0, AM_RESERVED1, AM_CONF_MAP, AM_HW_TRIGGER, AM_SW_TRIGGER, AM_DENOISE_ANF, AM_MEDIANCROSS')
+
+   property('timeout', 'int', 3000).
+	doc ('Timeout in ms for reading and writing')
+
+   property('integration_time', 'int', 5).
+	doc ('Integration time of the camera, value range from 0 to 255')
+
+   property('amplitude_threshold', 'int', 5) .
+	doc ('Amplitude threshold')
+
+   property('modulation_frequency', 'tofcamera_mesa_swissranger/TMS_ModulationFrq', :MF_30MHz).
+	doc('Modulation frequency of the LEDs; possible values: MF_40MHz, MF_30MHz, MF_21MHz, MF_20MHz, MF_19MHz, MF_60MHz, MF_15MHz, MF_10MHz, MF_29MHz, MF_31MHz, MF_14_5MHz, MF_15_5MHz')
+
+   property('min_int_time', 'int', 255).
+	doc('Minimal integration time for auto exposure; if the value is 255, the auto exposure is turn off.')
+
+   property('max_int_time', 'int', 0).
+	doc('Maximal integration time for auto exposure')
+
+   property('percent_over_pos', 'int', 0).
+	doc('Percent over position for auto exposure; value range from 0 to 100')
+
+   property('desired_pos', 'int', 0).
+	doc('Desired position for auto exposure; value range from 0 to 255')
+
+   property('coord_percision', 'tofcamera_mesa_swissranger::TMS_CoordPercision', :CP_DOUBLE).
+	doc('Percision for distance in cartesian coordinate; possible value: CP_DOUBLE, CP_FLOAT, CP_UINT')
+
+    output_port('distance_image', 'base::samples::frame::Frame').
+        doc ('provides timestamped raw distance data')
+
+    output_port('amplitude_image', 'base::samples::frame::Frame').
+        doc ('provides timestamped raw amplitude data')
+
+    output_port('confidence_map_image', 'base::samples::frame::Frame').
+	doc ('provides timestamped confidence map image')
+
+    output_port('distance_cartesian_image', '/base/samples/Pointcloud').
+        doc ('provides timestamped distance image containg the distance information in cartesian coordinates')
+
+   periodic(0.1)
+end
+
+
+# Declares a deployment, i.e. an actual executable that contains various tasks.
+deployment "tofcamera_mesa_swissranger_test" do
+    # This is a test deployment that should not be installed
+    do_not_install
+
+    # Declares it as periodic, with a period of 100ms
+    task("tofcamera_mesa_swissranger", "Task").
+        periodic(0.1)
+end
+
