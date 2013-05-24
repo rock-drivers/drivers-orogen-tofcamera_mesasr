@@ -22,7 +22,7 @@ task_context "Task" do
    property('amplitude_threshold', 'int', 5) .
 	doc ('Amplitude threshold')
 
-   property('modulation_frequency', 'tofcamera_mesa_swissranger/TMS_ModulationFrq', :MF_30MHz).
+   property('modulation_frequency', 'tofcamera_mesa_swissranger/TMS_ModulationFrq', :MF_15MHz).
 	doc('Modulation frequency of the LEDs; possible values: MF_40MHz, MF_30MHz, MF_21MHz, MF_20MHz, MF_19MHz, MF_60MHz, MF_15MHz, MF_10MHz, MF_29MHz, MF_31MHz, MF_14_5MHz, MF_15_5MHz')
 
    property('min_int_time', 'int', 255).

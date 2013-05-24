@@ -11,7 +11,7 @@ Orocos.run 'tofcamera_mesa_swissranger::Task' => 'tofcamera_mesa_swissranger' do
 	swissranger.timeout = 3000
 	swissranger.integration_time = 5
 	swissranger.amplitude_threshold = 5	
-	swissranger.modulation_frequency = :MF_30MHz
+	swissranger.modulation_frequency = :MF_15MHz
 	swissranger.min_int_time = 255
 	swissranger.coord_percision = :CP_DOUBLE
 
