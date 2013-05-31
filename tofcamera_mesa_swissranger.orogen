@@ -46,11 +46,11 @@ task_context "Task" do
     output_port('amplitude_image', 'base::samples::frame::Frame').
         doc ('provides timestamped raw amplitude data')
 
-    output_port('confidence_map_image', 'base::samples::frame::Frame').
-	doc ('provides timestamped confidence map image')
+    output_port('confidence_image', 'base::samples::frame::Frame').
+        doc ('provides timestamped confidence image')
 
-    output_port('distance_cartesian_image', '/base/samples/Pointcloud').
-        doc ('provides timestamped distance image containg the distance information in cartesian coordinates')
+    output_port('coordinates_3D', '/base/samples/Pointcloud').
+        doc ('provides timestamped pointcloud containg the distance information in cartesian coordinates')
 
    periodic(0.1)
 end

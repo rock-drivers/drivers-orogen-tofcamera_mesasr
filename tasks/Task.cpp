@@ -180,26 +180,26 @@ void Task::updateHook()
         }
 
         // confidence map image
-        if (_confidence_map_image.connected())
+        if (_confidence_image.connected())
         {
             if (m_driver->isConfidenceImageAvailable())
             {
-                base::samples::frame::Frame confidence_map_image;
-                result = m_driver->getConfidenceMapImage(confidence_map_image);
+                base::samples::frame::Frame confidence_image;
+                result = m_driver->getConfidenceImage(confidence_image);
                 if (result == true)
-                    _confidence_map_image.write(confidence_map_image);
+                    _confidence_image.write(confidence_image);
             }
             else
                 RTT::log(RTT::Warning) << "Confidence map image is not available." << RTT::endlog();
         }
 
         // confidence map image
-        if (_distance_cartesian_image.connected())
+        if (_coordinates_3D.connected())
         {
-            base::samples::Pointcloud distance_cart;
-            result = m_driver->getDistanceCartesian(distance_cart, percision_);
+            base::samples::Pointcloud coordinates;
+            result = m_driver->get3DCoordinates(coordinates, percision_);
             if (result == true)
-                _distance_cartesian_image.write(distance_cart);
+                _coordinates_3D.write(coordinates);
         }
 
     } else {
