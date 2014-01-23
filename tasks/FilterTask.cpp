@@ -91,7 +91,7 @@ FilterTask::~FilterTask()
 
     base::Time time_end = base::Time::now();
 
-    std::cout << "filter time " << (time_end - time_start).toSeconds() << std::endl;     
+    // std::cout << "filter time " << (time_end - time_start).toSeconds() << std::endl;     
  }
 // void FilterTask::errorHook()
 // {

@@ -181,7 +181,7 @@ void Task::updateHook()
 
     base::Time time_end = base::Time::now();
 
-    std::cout << "acquire time " << (time_end - time_start).toSeconds() << std::endl;     
+    // std::cout << "acquire time " << (time_end - time_start).toSeconds() << std::endl;     
 }
 // void Task::errorHook()
 // {
