@@ -41,7 +41,7 @@ task_context "Task" do
     output_port('tofscan', 'tofcamera_mesa_swissranger::TOFScan').
         doc ('TOFScan contain distance, amplitude, confidence images (if it is available) and 3D points')
 
-   periodic(0.1)
+   #periodic(0.2)
 end
 
 task_context "FilterTask" do
@@ -51,10 +51,10 @@ task_context "FilterTask" do
         doc ('Minimal confidence value')
 
    property('min_amplitude', 'int', 0).
-        doc ('Minimal confidence value')
+        doc ('Minimum amplitude')
 
    property('max_amplitude', 'int', 65000).
-        doc ('Minimal confidence value')
+        doc ('Maximum amplitude')
 
    input_port('tofscan', 'tofcamera_mesa_swissranger::TOFScan').
        doc ('TOFScan contain distance, amplitude, confidence images (if it is available) and 3D points')
@@ -70,10 +70,18 @@ end
 # Declares a deployment, i.e. an actual executable that contains various tasks.
 deployment "tofcamera_mesa_swissranger_test" do
     # This is a test deployment that should not be installed
-    #do_not_install
+    do_not_install
 
     # Declares it as periodic, with a period of 100ms
     task("tofcamera_mesa_swissranger", "Task").
-        periodic(0.1)
+        periodic(0.2)
+end
+
+# Declares a deployment, i.e. an actual executable that contains various tasks.
+deployment "tofcamera_mesa_swissranger_deployment" do
+    # Declares it as periodic, with a period of 100ms
+    camera = task("swissranger", "Task").
+        periodic(0.2)
+    filter = task("filter", "FilterTask")
 end
 
