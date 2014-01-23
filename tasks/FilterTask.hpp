@@ -1,21 +1,16 @@
-    /* Generated from orogen/lib/orogen/templates/tasks/Task.hpp */
+/* Generated from orogen/lib/orogen/templates/tasks/Task.hpp */
 
-#ifndef TOFCAMERA_MESA_SWISSRANGER_TASK_TASK_HPP
-#define TOFCAMERA_MESA_SWISSRANGER_TASK_TASK_HPP
+#ifndef TOFCAMERA_MESA_SWISSRANGER_FILTERTASK_TASK_HPP
+#define TOFCAMERA_MESA_SWISSRANGER_FILTERTASK_TASK_HPP
 
-#include "tofcamera_mesa_swissranger/TaskBase.hpp"
-#include <vector>
-#include <string>
-#include <boost/algorithm/string.hpp>
+#include "tofcamera_mesa_swissranger/FilterTaskBase.hpp"
+#include "tofcamera_mesa_swissranger/Filter.hpp"
+
 #include <boost/numeric/conversion/cast.hpp>
 
 namespace tofcamera_mesa_swissranger {
-    class SwissRangerDriver;
-}
 
-namespace tofcamera_mesa_swissranger {
-
-    /*! \class Task 
+    /*! \class FilterTask 
      * \brief The task context provides and requires services. It uses an ExecutionEngine to perform its functions.
      * Essential interfaces are operations, data flow ports and properties. These interfaces have been defined using the oroGen specification.
      * In order to modify the interfaces you should (re)use oroGen and rely on the associated workflow.
@@ -24,34 +19,37 @@ namespace tofcamera_mesa_swissranger {
      * The name of a TaskContext is primarily defined via:
      \verbatim
      deployment 'deployment_name'
-         task('custom_task_name','tofcamera_mesa_swissranger::Task')
+         task('custom_task_name','tofcamera_mesa_swissranger::FilterTask')
      end
      \endverbatim
      *  It can be dynamically adapted when the deployment is called with a prefix argument. 
      */
-    class Task : public TaskBase
+    class FilterTask : public FilterTaskBase
     {
-	friend class TaskBase;
+	friend class FilterTaskBase;
     protected:
-        tofcamera_mesa_swissranger::SwissRangerDriver *m_driver;
+        unsigned int min_confidence;
+        unsigned int min_amplitude;
+        unsigned int max_amplitude;
+
 
     public:
-        /** TaskContext constructor for Task
+        /** TaskContext constructor for FilterTask
          * \param name Name of the task. This name needs to be unique to make it identifiable via nameservices.
          * \param initial_state The initial TaskState of the TaskContext. Default is Stopped state.
          */
-        Task(std::string const& name = "tofcamera_mesa_swissranger::Task");
+        FilterTask(std::string const& name = "tofcamera_mesa_swissranger::FilterTask");
 
-        /** TaskContext constructor for Task 
+        /** TaskContext constructor for FilterTask 
          * \param name Name of the task. This name needs to be unique to make it identifiable for nameservices. 
          * \param engine The RTT Execution engine to be used for this task, which serialises the execution of all commands, programs, state machines and incoming events for a task. 
-         * \param initial_state The initial TaskState of the TaskContext. Default is Stopped state.
+         * 
          */
-        Task(std::string const& name, RTT::ExecutionEngine* engine);
+        FilterTask(std::string const& name, RTT::ExecutionEngine* engine);
 
-        /** Default deconstructor of Task
+        /** Default deconstructor of FilterTask
          */
-	~Task();
+	~FilterTask();
 
         /** This hook is called by Orocos when the state machine transitions
          * from PreOperational to Stopped. If it returns false, then the

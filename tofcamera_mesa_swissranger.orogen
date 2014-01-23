@@ -3,9 +3,10 @@ name "tofcamera_mesa_swissranger"
 # version "0.1"
 
 import_types_from "base"
-using_library "tofcamera_mesa_swissranger"
-
+import_types_from "tofcamera_mesa_swissranger/TOFScan.hpp"
 import_types_from "tofcamera_mesa_swissranger/SwissRangerTypes.hpp"
+
+using_library "tofcamera_mesa_swissranger"
 
 task_context "Task" do
    needs_configuration
@@ -37,29 +38,39 @@ task_context "Task" do
    property('desired_pos', 'int', 0).
 	doc('Desired position for auto exposure; value range from 0 to 255')
 
-   property('coord_percision', 'tofcamera_mesa_swissranger::TMS_CoordPercision', :CP_DOUBLE).
-	doc('Percision for distance in cartesian coordinate; possible value: CP_DOUBLE, CP_FLOAT, CP_UINT')
-
-    output_port('distance_image', 'base::samples::frame::Frame').
-        doc ('provides timestamped raw distance data')
-
-    output_port('amplitude_image', 'base::samples::frame::Frame').
-        doc ('provides timestamped raw amplitude data')
-
-    output_port('confidence_image', 'base::samples::frame::Frame').
-        doc ('provides timestamped confidence image')
-
-    output_port('coordinates_3D', '/base/samples/Pointcloud').
-        doc ('provides timestamped pointcloud containg the distance information in cartesian coordinates')
+    output_port('tofscan', 'tofcamera_mesa_swissranger::TOFScan').
+        doc ('TOFScan contain distance, amplitude, confidence images (if it is available) and 3D points')
 
    periodic(0.1)
 end
 
+task_context "FilterTask" do
+   needs_configuration
+
+   property('min_confidence', 'int', 65000).
+        doc ('Minimal confidence value')
+
+   property('min_amplitude', 'int', 0).
+        doc ('Minimal confidence value')
+
+   property('max_amplitude', 'int', 65000).
+        doc ('Minimal confidence value')
+
+   input_port('tofscan', 'tofcamera_mesa_swissranger::TOFScan').
+       doc ('TOFScan contain distance, amplitude, confidence images (if it is available) and 3D points')
+
+   output_port('tofscan_filtered', 'tofcamera_mesa_swissranger::TOFScan').
+       doc ('TOFScan contain distance, amplitude, confidence images (if it is available) and 3D points')
+
+   # If you want that component's updateHook() to be executed when the "input"
+   # port gets data, uncomment this
+   port_driven
+end
 
 # Declares a deployment, i.e. an actual executable that contains various tasks.
 deployment "tofcamera_mesa_swissranger_test" do
     # This is a test deployment that should not be installed
-    do_not_install
+    #do_not_install
 
     # Declares it as periodic, with a period of 100ms
     task("tofcamera_mesa_swissranger", "Task").

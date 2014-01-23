@@ -1,3 +1,4 @@
+
 /* Generated from orogen/lib/orogen/templates/tasks/Task.cpp */
 
 #include "Task.hpp"
@@ -143,9 +144,6 @@ bool Task::configureHook()
         return false;
     }
 
-
-    percision_ = _coord_percision.get();
-
     return true;
 }
 // bool Task::startHook()
@@ -158,53 +156,32 @@ void Task::updateHook()
 {
     TaskBase::updateHook();
 
+    base::Time time_start = base::Time::now();
+
     int result = m_driver->acquire();
     if (result == true)
     {
-        // distance image
-        if (_distance_image.connected())
+        if (_tofscan.connected())
         {
-            base::samples::frame::Frame distance_image;
-            result = m_driver->getDistanceImage(distance_image);
-            if (result == true)
-                _distance_image.write(distance_image);
-        }
-
-        // amplitude image
-        if (_amplitude_image.connected())
-        {
-            base::samples::frame::Frame amplitude_image;
-            result = m_driver->getAmplitudeImage(amplitude_image);
-            if (result == true)
-               _amplitude_image.write(amplitude_image);
-        }
-
-        // confidence map image
-        if (_confidence_image.connected())
-        {
-            if (m_driver->isConfidenceImageAvailable())
-            {
-                base::samples::frame::Frame confidence_image;
-                result = m_driver->getConfidenceImage(confidence_image);
-                if (result == true)
-                    _confidence_image.write(confidence_image);
-            }
-            else
-                RTT::log(RTT::Warning) << "Confidence map image is not available." << RTT::endlog();
-        }
-
-        // confidence map image
-        if (_coordinates_3D.connected())
-        {
-            base::samples::Pointcloud coordinates;
-            result = m_driver->get3DCoordinates(coordinates, percision_);
-            if (result == true)
-                _coordinates_3D.write(coordinates);
+            TOFScan scan;
+            scan.time = base::Time::now();
+            m_driver->getRows(scan.rows);
+            m_driver->getCols(scan.cols);
+            scan.data_depth = 16;
+            m_driver->getDistanceImage( (std::vector<uint16_t>*) &scan.distance_image );
+            m_driver->getAmplitudeImage( (std::vector<uint16_t>*) &scan.amplitude_image );
+            m_driver->getConfidenceImage( (std::vector<uint16_t>*) &scan.confidence_image );
+            m_driver->getPointcloudDouble(scan.coordinates_3D);
+           _tofscan.write(scan);
         }
 
     } else {
         RTT::log(RTT::Error) << "Failed to acquire the camera image." << RTT::endlog();
     }
+
+    base::Time time_end = base::Time::now();
+
+    std::cout << "acquire time " << (time_end - time_start).toSeconds() << std::endl;     
 }
 // void Task::errorHook()
 // {
