@@ -79,7 +79,7 @@ end
 
 # Declares a deployment, i.e. an actual executable that contains various tasks.
 deployment "tofcamera_mesa_swissranger_deployment" do
-    # Declares it as periodic, with a period of 100ms
+    # Declares it as periodic, with a period of 200ms
     camera = task("swissranger", "Task").
         periodic(0.2)
     filter = task("filter", "FilterTask")
