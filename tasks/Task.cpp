@@ -4,6 +4,7 @@
 #include "Task.hpp"
 
 #include "tofcamera_mesa_swissranger/SwissRangerDriver.hpp"
+#include "tofcamera_mesa_swissranger/Filter.hpp"
 
 using namespace tofcamera_mesa_swissranger;
 
@@ -36,12 +37,14 @@ bool Task::configureHook()
 
     m_driver = new tofcamera_mesa_swissranger::SwissRangerDriver();
 
+    // open camera
     if( !m_driver->openUSB(0) )
     {
-        RTT::log(RTT::Error) << "Device could not be opened." << RTT::endlog();
+        RTT::log(RTT::Error) << "SwissRanger device could not be opened." << RTT::endlog();
         return false;
     }
 
+    // set acquire mode
     std::string acquire_mode_str = _acquisition_mode.get();
     std::vector<std::string> acquire_modes_list;
     boost::split(acquire_modes_list, acquire_mode_str, boost::is_any_of("|"));
@@ -77,53 +80,42 @@ bool Task::configureHook()
 
     if (!m_driver->setAcquisitionMode(acquire_mode))
     {
-        RTT::log(RTT::Error) << "Acquisition mode could not be set." << RTT::endlog();
+        RTT::log(RTT::Error) << "SwissRanger acquisition mode could not be set." << RTT::endlog();
         return false;
     }
 
+    // set timeout
     m_driver->setTimeout(_timeout);
 
+    // set integration time
     try
     {
         unsigned char integration_time_uchar = boost::numeric_cast<unsigned char>(_integration_time.get());
 
         if (!m_driver->setIntegrationTime(integration_time_uchar))
         {
-            RTT::log(RTT::Error) << "Integration time could not be set." << RTT::endlog();
+            RTT::log(RTT::Error) << "SwissRanger integration time could not be set." << RTT::endlog();
             return false;
         }
     }
     catch (boost::numeric::bad_numeric_cast& e)
     {
-        RTT::log(RTT::Error) << "Integration time could not be set. "
+        RTT::log(RTT::Error) << "SwissRanger integration time could not be set. "
                              << "The value should be in range from 0 to 255." << RTT::endlog();
         return false;
     }
 
-    try
-    {
-        unsigned short amplitude_thresh_int_ushort = boost::numeric_cast<unsigned short>(_amplitude_threshold.get());
+    // set dual integration time
+    m_driver->setDualIntegrationTime(_dual_integration_time.get());
 
-        if (!m_driver->setAmplitudeThreshold(amplitude_thresh_int_ushort))
-        {
-            RTT::log(RTT::Error) << "Amplitude threshold could not be set." << RTT::endlog();
-            return false;
-        }
-    }
-    catch (boost::numeric::bad_numeric_cast& e)
-    {
-        RTT::log(RTT::Error) << "Amplitude threshold could not be set. "
-                             << "The value should be in range from 0 to 65.535." << RTT::endlog();
-        return false;
-    }
-
-
+    // modulation frequency
     if (!m_driver->setModulationFrequency(_modulation_frequency.get()))
     {
-        RTT::log(RTT::Error) << "Modulation frequency could not be set." << RTT::endlog();
+        RTT::log(RTT::Error) << "SwissRanger modulation frequency could not be set." << RTT::endlog();
         return false;
     }
 
+    // set auto exposure parameter
     try
     {
         unsigned char min_int_time_uchar = boost::numeric_cast<unsigned char>(_min_int_time.get());
@@ -133,17 +125,52 @@ bool Task::configureHook()
 
         if (!m_driver->setAutoExposure(min_int_time_uchar, max_int_time_uchar, percent_over_pos_uchar, desired_pos_uchar))
         {
-            RTT::log(RTT::Error) << "Auto Exposure could not be set." << RTT::endlog();
+            RTT::log(RTT::Error) << "SwissRanger auto exposure could not be set." << RTT::endlog();
             return false;
         }
     }
     catch (boost::numeric::bad_numeric_cast& e)
     {
-        RTT::log(RTT::Error) << "Auto exposure could not be set. "
+        RTT::log(RTT::Error) << "SwissRanger auto exposure could not be set. "
                              << "The value should be in range from 0 to 255." << RTT::endlog();
         return false;
     }
 
+    // set amplitude threshold
+    try
+    {
+        unsigned short amplitude_thresh_ushort = boost::numeric_cast<unsigned short>(_amplitude_threshold.get());
+
+        if (!m_driver->setAmplitudeThreshold(amplitude_thresh_ushort))
+        {
+            RTT::log(RTT::Error) << "SwissRanger amplitude threshold could not be set." << RTT::endlog();
+            return false;
+        }
+    }
+    catch (boost::numeric::bad_numeric_cast& e)
+    {
+        RTT::log(RTT::Error) << "SwissRanger amplitude threshold could not be set. "
+                             << "The value should be in range from 0 to 65535." << RTT::endlog();
+        return false;
+    }    
+
+    // set confidence threshold
+    try
+    {
+        unsigned short confidence_thresh_ushort = boost::numeric_cast<unsigned short>(_confidence_threshold.get());
+
+        m_driver->setConfidenceThreshold(confidence_thresh_ushort);
+    }
+    catch (boost::numeric::bad_numeric_cast& e)
+    {
+        RTT::log(RTT::Error) << "SwissRanger confidence threshold could not be set. "
+                             << "The value should be in range from 0 to 65535." << RTT::endlog();
+        return false;
+    }    
+
+    // set remove zero points
+    m_driver->turnRemoveZeroPoints(_remove_zero_points.get());
+    
     return true;
 }
 // bool Task::startHook()
@@ -156,15 +183,15 @@ void Task::updateHook()
 {
     TaskBase::updateHook();
 
-    base::Time time_start = base::Time::now();
-
     int result = m_driver->acquire();
+
+    base::Time capture_time = base::Time::now();
+
     if (result == true)
     {
-        if (_tofscan.connected())
-        {
+        //if (_tofscan.connected())
+        //{
             TOFScan scan;
-            scan.time = base::Time::now();
             m_driver->getRows(scan.rows);
             m_driver->getCols(scan.cols);
             scan.data_depth = 16;
@@ -172,16 +199,25 @@ void Task::updateHook()
             m_driver->getAmplitudeImage( (std::vector<uint16_t>*) &scan.amplitude_image );
             m_driver->getConfidenceImage( (std::vector<uint16_t>*) &scan.confidence_image );
             m_driver->getPointcloudDouble(scan.coordinates_3D);
-           _tofscan.write(scan);
+
+            scan.time = capture_time;
+
+            _tofscan.write(scan);           
+        //}
+
+        if (_pointcloud.connected())
+        {
+            base::samples::Pointcloud pointcloud;
+            m_driver->getPointcloudDouble(pointcloud.points);   
+
+            pointcloud.time = capture_time;
+
+            _pointcloud.write(pointcloud);
         }
 
     } else {
         RTT::log(RTT::Error) << "Failed to acquire the camera image." << RTT::endlog();
-    }
-
-    base::Time time_end = base::Time::now();
-
-    // std::cout << "acquire time " << (time_end - time_start).toSeconds() << std::endl;     
+    }  
 }
 // void Task::errorHook()
 // {
@@ -195,7 +231,10 @@ void Task::cleanupHook()
 {
     TaskBase::cleanupHook();
 
-    delete m_driver;
-    m_driver = 0;
+    if (m_driver != 0)
+    {
+        delete m_driver;
+        m_driver = 0;
+    }
 }
 

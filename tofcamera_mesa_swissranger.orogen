@@ -3,7 +3,7 @@ name "tofcamera_mesa_swissranger"
 # version "0.1"
 
 import_types_from "base"
-import_types_from "tofcamera_mesa_swissranger/TOFScan.hpp"
+import_types_from "TOFScanTypes.hpp"
 import_types_from "tofcamera_mesa_swissranger/SwissRangerTypes.hpp"
 
 using_library "tofcamera_mesa_swissranger"
@@ -11,77 +11,58 @@ using_library "tofcamera_mesa_swissranger"
 task_context "Task" do
    needs_configuration
 
-   property('acquisition_mode', 'std::string', 'AM_COR_FIX_PTRN|AM_CONV_GRAY|AM_DENOISE_ANF').
-	doc ('Acquisition mode, use bitwise OR operator to turn on multiple modes at the same time; possible values: AM_COR_FIX_PTRN, AM_MEDIAN, AM_TOGGLE_FRQ, AM_CONV_GRAY, AM_SW_ANF, AM_RESERVED0, AM_RESERVED1, AM_CONF_MAP, AM_HW_TRIGGER, AM_SW_TRIGGER, AM_DENOISE_ANF, AM_MEDIANCROSS')
+  property('acquisition_mode', 'std::string', 'AM_COR_FIX_PTRN|AM_CONV_GRAY|AM_DENOISE_ANF').
+	 doc ('Acquisition mode, use bitwise OR operator to turn on multiple modes at the same time; possible values: AM_COR_FIX_PTRN, AM_MEDIAN, AM_TOGGLE_FRQ, AM_CONV_GRAY, AM_SW_ANF, AM_RESERVED0, AM_RESERVED1, AM_CONF_MAP, AM_HW_TRIGGER, AM_SW_TRIGGER, AM_DENOISE_ANF, AM_MEDIANCROSS')
 
-   property('timeout', 'int', 3000).
-	doc ('Timeout in ms for reading and writing')
+  property('timeout', 'int', 3000).
+	 doc ('Timeout in ms for reading and writing')
 
-   property('integration_time', 'int', 5).
-	doc ('Integration time of the camera, value range from 0 to 255')
+  property('integration_time', 'int', 5).
+	 doc ('Integration time of the camera; [0,255]')
 
-   property('amplitude_threshold', 'int', 5) .
-	doc ('Amplitude threshold')
+  property('dual_integration_time', 'int', 0).
+   doc ('Dual integration time; only available for firmware 0x73; [0,100]')
 
-   property('modulation_frequency', 'tofcamera_mesa_swissranger/TMS_ModulationFrq', :MF_15MHz).
-	doc('Modulation frequency of the LEDs; possible values: MF_40MHz, MF_30MHz, MF_21MHz, MF_20MHz, MF_19MHz, MF_60MHz, MF_15MHz, MF_10MHz, MF_29MHz, MF_31MHz, MF_14_5MHz, MF_15_5MHz')
+  property('modulation_frequency', 'tofcamera_mesa_swissranger/TMS_ModulationFrq', :MF_15MHz).
+	 doc('Modulation frequency of the LEDs; possible values: MF_40MHz, MF_30MHz, MF_21MHz, MF_20MHz, MF_19MHz, MF_60MHz, MF_15MHz, MF_10MHz, MF_29MHz, MF_31MHz, MF_14_5MHz, MF_15_5MHz')
 
-   property('min_int_time', 'int', 255).
-	doc('Minimal integration time for auto exposure; if the value is 255, the auto exposure is turn off.')
+  property('min_int_time', 'int', 255).
+	 doc('Minimal integration time for auto exposure; if the value is 255, the auto exposure is turn off; [0,255]')
 
-   property('max_int_time', 'int', 0).
-	doc('Maximal integration time for auto exposure')
+  property('max_int_time', 'int', 0).
+	 doc('Maximal integration time for auto exposure')
 
-   property('percent_over_pos', 'int', 0).
-	doc('Percent over position for auto exposure; value range from 0 to 100')
+  property('percent_over_pos', 'int', 0).
+	 doc('Percent over position for auto exposure; [0,100]')
 
-   property('desired_pos', 'int', 0).
-	doc('Desired position for auto exposure; value range from 0 to 255')
+  property('desired_pos', 'int', 0).
+	 doc('Desired position for auto exposure; [0,255]')
 
-    output_port('tofscan', 'tofcamera_mesa_swissranger::TOFScan').
+  property('amplitude_threshold', 'int', 0).
+   doc ('The coordinate of points with lower amplitude than threshold will set to zero. [0, 65535]')
+
+  property('confidence_threshold', 'int', 0).
+   doc ('The coordinate of points with lower confidence than threshold will set to zero. [0, 65535]')
+
+  property('remove_zero_points', 'bool', false).
+   doc ('Remove the points with zero coordinates')   
+
+  output_port('tofscan', 'tofcamera_mesa_swissranger::TOFScan').
         doc ('TOFScan contain distance, amplitude, confidence images (if it is available) and 3D points')
 
-   #periodic(0.2)
-end
+  output_port('pointcloud', 'base::samples::Pointcloud')
 
-task_context "FilterTask" do
-   needs_configuration
-
-   property('min_confidence', 'int', 65000).
-        doc ('Minimal confidence value')
-
-   property('min_amplitude', 'int', 0).
-        doc ('Minimum amplitude')
-
-   property('max_amplitude', 'int', 65000).
-        doc ('Maximum amplitude')
-
-   input_port('tofscan', 'tofcamera_mesa_swissranger::TOFScan').
-       doc ('TOFScan contain distance, amplitude, confidence images (if it is available) and 3D points')
-
-   output_port('tofscan_filtered', 'tofcamera_mesa_swissranger::TOFScan').
-       doc ('TOFScan contain distance, amplitude, confidence images (if it is available) and 3D points')
-
-   # If you want that component's updateHook() to be executed when the "input"
-   # port gets data, uncomment this
-   port_driven
+   periodic(0.1)
 end
 
 # Declares a deployment, i.e. an actual executable that contains various tasks.
-deployment "tofcamera_mesa_swissranger_test" do
+deployment "tofcamera_mesa_swissranger_deployment" do
     # This is a test deployment that should not be installed
     do_not_install
 
     # Declares it as periodic, with a period of 100ms
     task("tofcamera_mesa_swissranger", "Task").
         periodic(0.2)
-end
 
-# Declares a deployment, i.e. an actual executable that contains various tasks.
-deployment "tofcamera_mesa_swissranger_deployment" do
-    # Declares it as periodic, with a period of 200ms
-    camera = task("swissranger", "Task").
-        periodic(0.2)
-    filter = task("filter", "FilterTask")
+    add_default_logger
 end
-

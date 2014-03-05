@@ -14,6 +14,7 @@
   <depend package="dummy-dependency-n" />
   -->
   <depend package="drivers/tofcamera_mesa_swissranger" />
+  <depend package="base/orogen/types"/>
 
   <rosdep name="boost" />
 </package>

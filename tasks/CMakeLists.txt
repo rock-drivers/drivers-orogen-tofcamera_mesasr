@@ -1,5 +1,4 @@
 # Generated from orogen/lib/orogen/templates/tasks/CMakeLists.txt
-
 include(tofcamera_mesa_swissrangerTaskLib)
 ADD_LIBRARY(${TOFCAMERA_MESA_SWISSRANGER_TASKLIB_NAME} SHARED 
     ${TOFCAMERA_MESA_SWISSRANGER_TASKLIB_SOURCES})
