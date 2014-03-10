@@ -3,10 +3,10 @@
 
 #include "Task.hpp"
 
-#include "tofcamera_mesa_swissranger/SwissRangerDriver.hpp"
-//#include "tofcamera_mesa_swissranger/Filter.hpp"
+#include "tofcamera_mesasr/SwissRangerDriver.hpp"
+//#include "tofcamera_mesasr/Filter.hpp"
 
-using namespace tofcamera_mesa_swissranger;
+using namespace tofcamera_mesasr;
 
 Task::Task(std::string const& name)
     : TaskBase(name), m_driver(0)
@@ -35,7 +35,7 @@ bool Task::configureHook()
     if (! TaskBase::configureHook())
         return false;
 
-    m_driver = new tofcamera_mesa_swissranger::SwissRangerDriver();
+    m_driver = new tofcamera_mesasr::SwissRangerDriver();
 
     // open camera
     if( !m_driver->openUSB(0) )

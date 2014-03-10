@@ -5,11 +5,11 @@ require 'roby/vizkit'
 include Orocos
 Orocos.initialize
 
-Orocos.run 'tofcamera_mesa_swissranger_deployment' do
+Orocos.run 'tofcamera_mesasr_deployment' do
     # Set up logging
     Orocos.log_all
 
-    swissranger = Orocos.name_service.get 'tofcamera_mesa_swissranger'
+    swissranger = Orocos.name_service.get 'tofcamera_mesasr'
 
     swissranger.acquisition_mode = 'AM_COR_FIX_PTRN|AM_DENOISE_ANF|AM_CONF_MAP|AM_MEDIAN'
     swissranger.timeout = 3000

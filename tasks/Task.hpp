@@ -1,19 +1,19 @@
     /* Generated from orogen/lib/orogen/templates/tasks/Task.hpp */
 
-#ifndef TOFCAMERA_MESA_SWISSRANGER_TASK_TASK_HPP
-#define TOFCAMERA_MESA_SWISSRANGER_TASK_TASK_HPP
+#ifndef TOFCAMERA_MESASR_TASK_TASK_HPP
+#define TOFCAMERA_MESASR_TASK_TASK_HPP
 
-#include "tofcamera_mesa_swissranger/TaskBase.hpp"
+#include "tofcamera_mesasr/TaskBase.hpp"
 #include <vector>
 #include <string>
 #include <boost/algorithm/string.hpp>
 #include <boost/numeric/conversion/cast.hpp>
 
-namespace tofcamera_mesa_swissranger {
+namespace tofcamera_mesasr {
     class SwissRangerDriver;
 }
 
-namespace tofcamera_mesa_swissranger {
+namespace tofcamera_mesasr {
 
     /*! \class Task 
      * \brief The task context provides and requires services. It uses an ExecutionEngine to perform its functions.
@@ -24,7 +24,7 @@ namespace tofcamera_mesa_swissranger {
      * The name of a TaskContext is primarily defined via:
      \verbatim
      deployment 'deployment_name'
-         task('custom_task_name','tofcamera_mesa_swissranger::Task')
+         task('custom_task_name','tofcamera_mesasr::Task')
      end
      \endverbatim
      *  It can be dynamically adapted when the deployment is called with a prefix argument. 
@@ -33,14 +33,14 @@ namespace tofcamera_mesa_swissranger {
     {
 	friend class TaskBase;
     protected:
-        tofcamera_mesa_swissranger::SwissRangerDriver *m_driver;
+        tofcamera_mesasr::SwissRangerDriver *m_driver;
 
     public:
         /** TaskContext constructor for Task
          * \param name Name of the task. This name needs to be unique to make it identifiable via nameservices.
          * \param initial_state The initial TaskState of the TaskContext. Default is Stopped state.
          */
-        Task(std::string const& name = "tofcamera_mesa_swissranger::Task");
+        Task(std::string const& name = "tofcamera_mesasr::Task");
 
         /** TaskContext constructor for Task 
          * \param name Name of the task. This name needs to be unique to make it identifiable for nameservices. 

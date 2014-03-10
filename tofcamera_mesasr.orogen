@@ -1,12 +1,12 @@
-name "tofcamera_mesa_swissranger"
+name "tofcamera_mesasr"
 # Optionally declare the version number
 # version "0.1"
 
 import_types_from "base"
 import_types_from "TOFScanTypes.hpp"
-import_types_from "tofcamera_mesa_swissranger/SwissRangerTypes.hpp"
+import_types_from "tofcamera_mesasr/SwissRangerTypes.hpp"
 
-using_library "tofcamera_mesa_swissranger"
+using_library "tofcamera_mesasr"
 
 task_context "Task" do
    needs_configuration
@@ -23,7 +23,7 @@ task_context "Task" do
   property('dual_integration_time', 'int', 0).
    doc ('Dual integration time; only available for firmware 0x73; [0,100]')
 
-  property('modulation_frequency', 'tofcamera_mesa_swissranger/TMS_ModulationFrq', :MF_15MHz).
+  property('modulation_frequency', 'tofcamera_mesasr/TMS_ModulationFrq', :MF_15MHz).
 	 doc('Modulation frequency of the LEDs; possible values: MF_40MHz, MF_30MHz, MF_21MHz, MF_20MHz, MF_19MHz, MF_60MHz, MF_15MHz, MF_10MHz, MF_29MHz, MF_31MHz, MF_14_5MHz, MF_15_5MHz')
 
   property('min_int_time', 'int', 255).
@@ -47,7 +47,7 @@ task_context "Task" do
   property('remove_zero_points', 'bool', false).
    doc ('Remove the points with zero coordinates')   
 
-  output_port('tofscan', 'tofcamera_mesa_swissranger::TOFScan').
+  output_port('tofscan', 'tofcamera_mesasr::TOFScan').
         doc ('TOFScan contain distance, amplitude, confidence images (if it is available) and 3D points')
 
   output_port('pointcloud', 'base::samples::Pointcloud')
@@ -56,12 +56,12 @@ task_context "Task" do
 end
 
 # Declares a deployment, i.e. an actual executable that contains various tasks.
-deployment "tofcamera_mesa_swissranger_deployment" do
+deployment "tofcamera_mesasr_deployment" do
     # This is a test deployment that should not be installed
     do_not_install
 
     # Declares it as periodic, with a period of 100ms
-    task("tofcamera_mesa_swissranger", "Task").
+    task("tofcamera_mesasr", "Task").
         periodic(0.2)
 
     add_default_logger

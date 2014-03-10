@@ -8,7 +8,7 @@
 #include <vector>
 #include <rtt/extras/ReadOnlyPointer.hpp>
 
-namespace tofcamera_mesa_swissranger
+namespace tofcamera_mesasr
 {
     class TOFScan
     {
