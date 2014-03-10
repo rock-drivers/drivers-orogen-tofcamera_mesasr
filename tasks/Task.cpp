@@ -4,7 +4,7 @@
 #include "Task.hpp"
 
 #include "tofcamera_mesa_swissranger/SwissRangerDriver.hpp"
-#include "tofcamera_mesa_swissranger/Filter.hpp"
+//#include "tofcamera_mesa_swissranger/Filter.hpp"
 
 using namespace tofcamera_mesa_swissranger;
 
