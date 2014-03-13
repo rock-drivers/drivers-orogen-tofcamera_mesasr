@@ -189,8 +189,8 @@ void Task::updateHook()
 
     if (result == true)
     {
-        //if (_tofscan.connected())
-        //{
+        if (_tofscan.connected())
+        {
             TOFScan scan;
             m_driver->getRows(scan.rows);
             m_driver->getCols(scan.cols);
@@ -203,7 +203,7 @@ void Task::updateHook()
             scan.time = capture_time;
 
             _tofscan.write(scan);           
-        //}
+        }
 
         if (_pointcloud.connected())
         {
