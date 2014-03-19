@@ -14,7 +14,8 @@
   <depend package="dummy-dependency-n" />
   -->
   <depend package="drivers/tofcamera_mesasr" />
-  <depend package="base/orogen/types"/>
+  <depend package="base/orogen/types" />
+  <depend package="gui/vizkit3d" />
 
   <rosdep name="boost" />
 </package>

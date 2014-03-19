@@ -7,7 +7,7 @@ Orocos.initialize
 
 Orocos.run 'tofcamera_mesasr_deployment' do
     # Set up logging
-    Orocos.log_all
+    #Orocos.log_all
 
     swissranger = Orocos.name_service.get 'tofcamera_mesasr'
 
@@ -19,6 +19,7 @@ Orocos.run 'tofcamera_mesasr_deployment' do
     swissranger.amplitude_threshold = 50
     swissranger.confidence_threshold = 0
     swissranger.remove_zero_points = false
+    swissranger.color_interval = 1
     swissranger.configure
 
     swissranger.start

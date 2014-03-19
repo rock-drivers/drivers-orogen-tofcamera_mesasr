@@ -7,6 +7,7 @@ import_types_from "TOFScanTypes.hpp"
 import_types_from "tofcamera_mesasr/SwissRangerTypes.hpp"
 
 using_library "tofcamera_mesasr"
+using_library "vizkit3d"
 
 task_context "Task" do
    needs_configuration
@@ -47,8 +48,12 @@ task_context "Task" do
   property('remove_zero_points', 'bool', false).
    doc ('Remove the points with zero coordinates')   
 
+  property('color_interval', 'int', 0).
+   doc('Color the pointcloud. The interval is for color extension in the units of pointcloud. 
+   If the value is 0, the color for pointcloud would be not set.')
+
   output_port('tofscan', 'tofcamera_mesasr::TOFScan').
-        doc ('TOFScan contain distance, amplitude, confidence images (if it is available) and 3D points')
+    doc ('TOFScan contain distance, amplitude, confidence images (if it is available) and 3D points')
 
   output_port('pointcloud', 'base::samples::Pointcloud')
 
@@ -62,7 +67,7 @@ deployment "tofcamera_mesasr_deployment" do
 
     # Declares it as periodic, with a period of 100ms
     task("tofcamera_mesasr", "Task").
-        periodic(0.2)
+        periodic(0.1)
 
     add_default_logger
 end

@@ -6,6 +6,7 @@
 #include "tofcamera_mesasr/TaskBase.hpp"
 #include <vector>
 #include <string>
+#include <math.h>
 #include <boost/algorithm/string.hpp>
 #include <boost/numeric/conversion/cast.hpp>
 
@@ -48,6 +49,8 @@ namespace tofcamera_mesasr {
          * \param initial_state The initial TaskState of the TaskContext. Default is Stopped state.
          */
         Task(std::string const& name, RTT::ExecutionEngine* engine);
+
+        int color_interval_;
 
         /** Default deconstructor of Task
          */

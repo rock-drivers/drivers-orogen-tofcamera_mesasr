@@ -4,7 +4,7 @@
 #include "Task.hpp"
 
 #include "tofcamera_mesasr/SwissRangerDriver.hpp"
-//#include "tofcamera_mesasr/Filter.hpp"
+#include "vizkit3d/ColorConversionHelper.hpp"
 
 using namespace tofcamera_mesasr;
 
@@ -170,6 +170,8 @@ bool Task::configureHook()
 
     // set remove zero points
     m_driver->turnRemoveZeroPoints(_remove_zero_points.get());
+
+    color_interval_ = _color_interval;
     
     return true;
 }
@@ -194,7 +196,8 @@ void Task::updateHook()
             TOFScan scan;
             m_driver->getRows(scan.rows);
             m_driver->getCols(scan.cols);
-            scan.data_depth = 16;
+            // TODO: the data depth can be changed later
+            scan.data_depth = 16;       
             m_driver->getDistanceImage( (std::vector<uint16_t>*) &scan.distance_image );
             m_driver->getAmplitudeImage( (std::vector<uint16_t>*) &scan.amplitude_image );
             m_driver->getConfidenceImage( (std::vector<uint16_t>*) &scan.confidence_image );
@@ -205,10 +208,41 @@ void Task::updateHook()
             _tofscan.write(scan);           
         }
 
+        // TODO: add float and ushort pointcloud to the ports
+
         if (_pointcloud.connected())
         {
             base::samples::Pointcloud pointcloud;
-            m_driver->getPointcloudDouble(pointcloud.points);   
+            m_driver->getPointcloudDouble(pointcloud.points);  
+
+            // if color_range is set to some value except 0
+            // than color the poincloud according to the point distance
+            if (color_interval_ != 0)
+            {
+                // color the pointcloud
+                pointcloud.colors.clear();  // TODO: remove clean?
+                pointcloud.colors.reserve(pointcloud.points.size());
+
+                float color_dist = 0.;
+                float point_dist = 0.;
+                float r, g, b;
+
+                for (std::vector<base::Point>::iterator it = pointcloud.points.begin();
+                        it != pointcloud.points.end(); ++it)
+                {
+                    // TODO: depends on the unit of the pointcloud (meter oder mm)
+                    // the distance from the camera to the point
+                    point_dist = it->norm();
+
+                    color_dist = fmod(point_dist, (float)color_interval_) / color_interval_;
+
+                    r = g = b = 0.;                
+                    vizkit3d::hslToRgb(color_dist, 1.0, 0.5, r, g, b);
+
+                    // r, g, b and alpha
+                    pointcloud.colors.push_back(base::Vector4d(r, g, b, 1.0)); 
+                } 
+            }
 
             pointcloud.time = capture_time;
 
