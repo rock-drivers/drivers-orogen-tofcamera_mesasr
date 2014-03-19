@@ -53,9 +53,10 @@ task_context "Task" do
    If the value is 0, the color for pointcloud would be not set.')
 
   output_port('tofscan', 'tofcamera_mesasr::TOFScan').
-    doc ('TOFScan contain distance, amplitude, confidence images (if it is available) and 3D points')
+    doc ('TOFScan contains distance, amplitude, confidence images (if it is available) and 3D points')
 
-  output_port('pointcloud', 'base::samples::Pointcloud')
+  output_port('pointcloud', 'base::samples::Pointcloud').
+    doc ('The pointcloud of the scan')
 
    periodic(0.1)
 end
