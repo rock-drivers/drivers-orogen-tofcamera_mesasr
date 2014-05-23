@@ -3,12 +3,14 @@
 #ifndef TOFCAMERA_MESASR_TASK_TASK_HPP
 #define TOFCAMERA_MESASR_TASK_TASK_HPP
 
-#include "tofcamera_mesasr/TaskBase.hpp"
 #include <vector>
 #include <string>
 #include <math.h>
+
 #include <boost/algorithm/string.hpp>
 #include <boost/numeric/conversion/cast.hpp>
+
+#include "tofcamera_mesasr/TaskBase.hpp"
 
 namespace tofcamera_mesasr {
     class SwissRangerDriver;

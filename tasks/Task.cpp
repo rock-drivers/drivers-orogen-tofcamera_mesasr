@@ -3,8 +3,9 @@
 
 #include "Task.hpp"
 
-#include "tofcamera_mesasr/SwissRangerDriver.hpp"
-#include "vizkit3d/ColorConversionHelper.hpp"
+#include <vizkit3d/ColorConversionHelper.hpp>
+
+#include <tofcamera_mesasr/SwissRangerDriver.hpp>
 
 using namespace tofcamera_mesasr;
 
