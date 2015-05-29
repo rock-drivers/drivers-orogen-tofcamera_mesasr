@@ -6,7 +6,6 @@
 #include <base/samples/Frame.hpp>
 #include <base/samples/Pointcloud.hpp>
 #include <vector>
-#include <rtt/extras/ReadOnlyPointer.hpp>
 
 namespace tofcamera_mesasr
 {
