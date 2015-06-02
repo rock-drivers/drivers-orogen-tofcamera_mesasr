@@ -5,7 +5,7 @@ require 'roby/vizkit'
 include Orocos
 Orocos.initialize
 
-Orocos.run 'tofcamera_mesasr_deployment' do
+Orocos.run 'tofcamera_mesasr::Task' => 'tofcamera_mesasr' do
     # Set up logging
     #Orocos.log_all
 

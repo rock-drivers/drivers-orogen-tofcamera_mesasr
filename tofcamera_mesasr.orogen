@@ -61,14 +61,3 @@ task_context "Task" do
    periodic(0.1)
 end
 
-# Declares a deployment, i.e. an actual executable that contains various tasks.
-deployment "tofcamera_mesasr_deployment" do
-    # This is a test deployment that should not be installed
-    do_not_install
-
-    # Declares it as periodic, with a period of 100ms
-    task("tofcamera_mesasr", "Task").
-        periodic(0.1)
-
-    add_default_logger
-end
