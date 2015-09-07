@@ -39,11 +39,28 @@ bool Task::configureHook()
     m_driver = new tofcamera_mesasr::SwissRangerDriver();
 
     // open camera
-    if( !m_driver->openUSB(0) )
+    // get interface type
+    if ( _interface.value() == "USB" )
     {
-        RTT::log(RTT::Error) << "SwissRanger device could not be opened." << RTT::endlog();
-        return false;
+        if( !m_driver->openUSB(0) )
+        {
+            RTT::log(RTT::Error) << "SwissRanger (USB) device could not be opened." << RTT::endlog();
+            return false;
+        }
     }
+    else if  ( _interface.value() == "ETHERNET" )
+    {
+        if( !m_driver->openEthernet(_ip_address.value()) )
+        {
+            RTT::log(RTT::Error) << "SwissRanger (Ethernet) device could not be opened." << RTT::endlog();
+            return false;
+        }
+    }
+    else {
+            RTT::log(RTT::Error) << "Interface type not supported or recognized. SwissRanger device could not be opened." << RTT::endlog();
+            return false;
+    }
+
 
     // set acquire mode
     std::string acquire_mode_str = _acquisition_mode.get();
@@ -203,6 +220,14 @@ void Task::updateHook()
             m_driver->getAmplitudeImage( (std::vector<uint16_t>*) &scan.amplitude_image );
             m_driver->getConfidenceImage( (std::vector<uint16_t>*) &scan.confidence_image );
             m_driver->getPointcloudDouble(scan.coordinates_3D);
+
+	    /*m_driver->getDistanceImage( (base::samples::frame::Frame*) &scan.distance_image );
+
+	    for (int i=1; i <= scan.cols; i++){
+		for (int j=1; j <= scan.rows; j++){
+		scan.distance_frame[i][j] = scan.distance_image[i*j];
+		}
+	    }*/	
 
             scan.time = capture_time;
 
