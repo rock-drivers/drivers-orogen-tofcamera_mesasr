@@ -221,14 +221,6 @@ void Task::updateHook()
             m_driver->getConfidenceImage( (std::vector<uint16_t>*) &scan.confidence_image );
             m_driver->getPointcloudDouble(scan.coordinates_3D);
 
-	    /*m_driver->getDistanceImage( (base::samples::frame::Frame*) &scan.distance_image );
-
-	    for (int i=1; i <= scan.cols; i++){
-		for (int j=1; j <= scan.rows; j++){
-		scan.distance_frame[i][j] = scan.distance_image[i*j];
-		}
-	    }*/	
-
             scan.time = capture_time;
 
             _tofscan.write(scan);           
