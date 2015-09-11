@@ -2,6 +2,7 @@
 /* Generated from orogen/lib/orogen/templates/tasks/Task.cpp */
 
 #include "Task.hpp"
+#include <stdio.h>
 
 #include <vizkit3d/ColorConversionHelper.hpp>
 
@@ -12,6 +13,7 @@ using namespace tofcamera_mesasr;
 Task::Task(std::string const& name)
     : TaskBase(name), m_driver(0)
 {
+ ir_frame = 0;
 }
 
 Task::Task(std::string const& name, RTT::ExecutionEngine* engine)
@@ -60,7 +62,6 @@ bool Task::configureHook()
             RTT::log(RTT::Error) << "Interface type not supported or recognized. SwissRanger device could not be opened." << RTT::endlog();
             return false;
     }
-
 
     // set acquire mode
     std::string acquire_mode_str = _acquisition_mode.get();
@@ -215,7 +216,7 @@ void Task::updateHook()
             m_driver->getRows(scan.rows);
             m_driver->getCols(scan.cols);
             // TODO: the data depth can be changed later
-            scan.data_depth = 16;       
+            scan.data_depth = 16;
             m_driver->getDistanceImage( (std::vector<uint16_t>*) &scan.distance_image );
             m_driver->getAmplitudeImage( (std::vector<uint16_t>*) &scan.amplitude_image );
             m_driver->getConfidenceImage( (std::vector<uint16_t>*) &scan.confidence_image );
@@ -223,7 +224,34 @@ void Task::updateHook()
 
             scan.time = capture_time;
 
-            _tofscan.write(scan);           
+
+	    size_t width = scan.cols;
+            size_t height = scan.rows;
+
+	     if(!ir_frame){
+                ir_frame = new base::samples::frame::Frame(width,height,16,base::samples::frame::MODE_GRAYSCALE);
+           }
+	    size_t bpp_grayscale = 2;
+	    char dataChar[width*height*bpp_grayscale];
+	    uint16_t data16[width*height];
+				
+
+	    for(int i = 0; i<scan.amplitude_image.size(); i++)
+		dataChar[i] = (char)(scan.amplitude_image[i]);
+
+		for(int i = 0; i<width*height; i++){
+			data16[i] = ((((uint16_t)dataChar[i*2]) << 8) + (uint16_t)dataChar[i*2+1]);
+			dataChar[i*2] = (char)(((data16[i] << 2) & 0xff00) >> 8);
+			dataChar[i*2+1] = (char)((data16[i] << 2) & 0x00ff);
+		   }
+
+	    ir_frame->setImage(dataChar,width*height*bpp_grayscale);
+            ir_frame->time = base::Time::now();
+            ir_frame_p.reset(ir_frame);
+            _ir_frame.write(ir_frame_p);
+
+
+            _tofscan.write(scan);
         }
 
         // TODO: add float and ushort pointcloud to the ports

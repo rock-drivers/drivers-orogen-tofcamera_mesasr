@@ -63,6 +63,9 @@ task_context "Task" do
 
   output_port('pointcloud', 'base::samples::Pointcloud').
     doc ('The pointcloud of the scan')
+  
+  output_port("ir_frame", ro_ptr("/base/samples/frame/Frame")).
+    doc("video image retrieved from Camera")
 
    periodic(0.1)
 end
