@@ -24,7 +24,10 @@ Orocos.run 'tofcamera_mesasr::Task' => 'tofcamera_mesasr' do
 
     swissranger.start
 
-    Vizkit.display swissranger.pointcloud
-
+    Vizkit.display swissranger
+    Vizkit.display swissranger.ir_frame
+#    Vizkit.display converter 
     Vizkit.exec
+	Readline::readline("Press ENTER to exit\n")do
+	end
 end
