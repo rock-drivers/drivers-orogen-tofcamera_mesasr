@@ -14,6 +14,7 @@ Task::Task(std::string const& name)
     : TaskBase(name), m_driver(0)
 {
  ir_frame = 0;
+ distance_frame = 0;
 }
 
 Task::Task(std::string const& name, RTT::ExecutionEngine* engine)
@@ -246,9 +247,26 @@ void Task::updateHook()
 		   }
 
 	    ir_frame->setImage(dataChar,width*height*bpp_grayscale);
-            ir_frame->time = base::Time::now();
+            ir_frame->time = capture_time;
             ir_frame_p.reset(ir_frame);
             _ir_frame.write(ir_frame_p);
+
+	    if(!distance_frame){
+                distance_frame = new base::samples::frame::Frame		(width,height,16,base::samples::frame::MODE_GRAYSCALE);
+              }		
+
+	    for(int i = 0; i<scan.distance_image.size(); i++)
+		dataChar[i] = (char)(scan.distance_image[i]);
+
+		for(int i = 0; i<width*height; i++){
+			data16[i] = ((((uint16_t)dataChar[i*2]) << 8) + (uint16_t)dataChar[i*2+1]);
+			dataChar[i*2] = (char)(((data16[i] << 2) & 0xff00) >> 8);
+			dataChar[i*2+1] = (char)((data16[i] << 2) & 0x00ff);
+		   }
+	    distance_frame->setImage(dataChar,width*height*bpp_grayscale);
+            distance_frame->time = capture_time;
+            distance_frame_p.reset(distance_frame);
+            _distance_frame.write(distance_frame_p);
 
 
             _tofscan.write(scan);
