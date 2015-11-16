@@ -11,7 +11,7 @@ Orocos.run 'tofcamera_mesasr::Task' => 'tofcamera_mesasr' do
 
     swissranger = Orocos.name_service.get 'tofcamera_mesasr'
 
-    swissranger.acquisition_mode = 'AM_COR_FIX_PTRN|AM_DENOISE_ANF|AM_CONF_MAP|AM_MEDIAN'
+#    swissranger.acquisition_mode = 'AM_COR_FIX_PTRN|AM_DENOISE_ANF|AM_CONF_MAP|AM_MEDIAN'
     swissranger.timeout = 3000
     swissranger.integration_time = 255
     swissranger.modulation_frequency = :MF_15MHz
