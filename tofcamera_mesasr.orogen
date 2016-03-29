@@ -15,7 +15,7 @@ task_context "Task" do
   property('interface', 'std::string', 'ETHERNET').
 	 doc ('Type of interface of the camera sensor. So far Swiss Ranger Cameras are available with USB or Ethernet interfaces for data connection. Possible values: USB, ETHERNET')
 
-  property('ip_address', 'std::string', '10.42.0.5').
+  property('ip_address', 'std::string', '192.168.1.34').
 	 doc ('IP address used by the camera sensor. Property only valid for Ethernet type of interface.')
 
   property('acquisition_mode', 'std::string', '').
