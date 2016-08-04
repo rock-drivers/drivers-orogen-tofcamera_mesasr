@@ -1,8 +1,8 @@
 #ifndef TOFSCAN_HPP
 #define TOFSCAN_HPP
 
-#include <base/time.h>
-#include <base/eigen.h>
+#include <base/Time.hpp>
+#include <base/Eigen.hpp>
 #include <base/samples/Frame.hpp>
 #include <base/samples/Pointcloud.hpp>
 #include <vector>
