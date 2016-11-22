@@ -218,9 +218,9 @@ void Task::updateHook()
             m_driver->getCols(scan.cols);
             // TODO: the data depth can be changed later
             scan.data_depth = 16;
-            m_driver->getDistanceImage( (std::vector<uint16_t>*) &scan.distance_image );
-            m_driver->getAmplitudeImage( (std::vector<uint16_t>*) &scan.amplitude_image );
-            m_driver->getConfidenceImage( (std::vector<uint16_t>*) &scan.confidence_image );
+            m_driver->getDistanceImage(&scan.distance_image );
+            m_driver->getAmplitudeImage(&scan.amplitude_image );
+            m_driver->getConfidenceImage(&scan.confidence_image );
             m_driver->getPointcloudDouble(scan.coordinates_3D);
 
             scan.time = capture_time;
@@ -234,17 +234,12 @@ void Task::updateHook()
            }
 	    size_t bpp_grayscale = 2;
 	    char dataChar[width*height*bpp_grayscale];
-	    uint16_t data16[width*height];
-				
-
-	    for(int i = 0; i<scan.amplitude_image.size(); i++)
-		dataChar[i] = (char)(scan.amplitude_image[i]);
-
-		for(int i = 0; i<width*height; i++){
-			data16[i] = ((((uint16_t)dataChar[i*2]) << 8) + (uint16_t)dataChar[i*2+1]);
-			dataChar[i*2] = (char)(((data16[i] << 2) & 0xff00) >> 8);
-			dataChar[i*2+1] = (char)((data16[i] << 2) & 0x00ff);
-		   }
+	    
+	    for(int i = 0; i<width*height; i++){
+		scan.amplitude_image[i] = scan.amplitude_image[i] << 2;
+		dataChar[2*i] = scan.amplitude_image[i] & 0x00FF;
+		dataChar[2*i+1] = scan.amplitude_image[i] >> 8;
+	    }
 
 	    ir_frame->setImage(dataChar,width*height*bpp_grayscale);
             ir_frame->time = capture_time;
@@ -255,14 +250,12 @@ void Task::updateHook()
                 distance_frame = new base::samples::frame::Frame		(width,height,16,base::samples::frame::MODE_GRAYSCALE);
               }		
 
-	    for(int i = 0; i<scan.distance_image.size(); i++)
-		dataChar[i] = (char)(scan.distance_image[i]);
-
-		for(int i = 0; i<width*height; i++){
-			data16[i] = ((((uint16_t)dataChar[i*2]) << 8) + (uint16_t)dataChar[i*2+1]);
-			dataChar[i*2] = (char)(((data16[i] << 2) & 0xff00) >> 8);
-			dataChar[i*2+1] = (char)((data16[i] << 2) & 0x00ff);
-		   }
+	    for(int i = 0; i<width*height; i++){
+		scan.distance_image[i] = scan.distance_image[i] << 2;
+		dataChar[2*i] = scan.distance_image[i] & 0x00FF;
+		dataChar[2*i+1] = scan.distance_image[i] >> 8;
+	    }
+		
 	    distance_frame->setImage(dataChar,width*height*bpp_grayscale);
             distance_frame->time = capture_time;
             distance_frame_p.reset(distance_frame);
