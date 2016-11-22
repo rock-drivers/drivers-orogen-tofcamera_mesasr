@@ -19,9 +19,9 @@ namespace tofcamera_mesasr
 
         uint32_t data_depth;
 
-        std::vector<uint8_t> distance_image;
-        std::vector<uint8_t> amplitude_image;
-        std::vector<uint8_t> confidence_image;
+        std::vector<uint16_t> distance_image;
+        std::vector<uint16_t> amplitude_image;
+        std::vector<uint16_t> confidence_image;
         std::vector<base::Vector3d> coordinates_3D;
     };
 }
