@@ -219,6 +219,9 @@ void Task::updateHook()
             // TODO: the data depth can be changed later
             scan.data_depth = 16;
 		
+	    // Because orogen can't handle 16 bit vectors, the scan types have to be 8 bit. So for
+	    // now we set up new vector<uint16_t> pointers to each image because this is what getDistanceImage,
+	    // GetAmplitudeImage and GetConfidenceImage are expecting.
             std::vector<uint16_t>* distance_image16 = (std::vector<uint16_t>*)&scan.distance_image;
 	    std::vector<uint16_t>* amplitude_image16 = (std::vector<uint16_t>*)&scan.amplitude_image;
 	    std::vector<uint16_t>* confidence_image16 = (std::vector<uint16_t>*)&scan.confidence_image;
