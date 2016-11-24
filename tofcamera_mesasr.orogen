@@ -12,13 +12,19 @@ using_library "vizkit3d"
 task_context "Task" do
    needs_configuration
 
-  property('acquisition_mode', 'std::string', 'AM_COR_FIX_PTRN|AM_CONV_GRAY|AM_DENOISE_ANF').
+  property('interface', 'std::string', 'ETHERNET').
+	 doc ('Type of interface of the camera sensor. So far Swiss Ranger Cameras are available with USB or Ethernet interfaces for data connection. Possible values: USB, ETHERNET')
+
+  property('ip_address', 'std::string', '192.168.1.34').
+	 doc ('IP address used by the camera sensor. Property only valid for Ethernet type of interface.')
+
+  property('acquisition_mode', 'std::string', '').
 	 doc ('Acquisition mode, use bitwise OR operator to turn on multiple modes at the same time; possible values: AM_COR_FIX_PTRN, AM_MEDIAN, AM_TOGGLE_FRQ, AM_CONV_GRAY, AM_SW_ANF, AM_RESERVED0, AM_RESERVED1, AM_CONF_MAP, AM_HW_TRIGGER, AM_SW_TRIGGER, AM_DENOISE_ANF, AM_MEDIANCROSS')
 
   property('timeout', 'int', 3000).
 	 doc ('Timeout in ms for reading and writing')
 
-  property('integration_time', 'int', 5).
+  property('integration_time', 'int', 255).
 	 doc ('Integration time of the camera; [0,255]')
 
   property('dual_integration_time', 'int', 0).
@@ -57,6 +63,12 @@ task_context "Task" do
 
   output_port('pointcloud', 'base::samples::Pointcloud').
     doc ('The pointcloud of the scan')
+  
+  output_port("ir_frame", ro_ptr("/base/samples/frame/Frame")).
+    doc("video image retrieved from Camera")
+
+  output_port("distance_frame", ro_ptr("/base/samples/frame/Frame")).
+    doc("video image retrieved from Camera")
 
    periodic(0.1)
 end

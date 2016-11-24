@@ -2,6 +2,7 @@
 /* Generated from orogen/lib/orogen/templates/tasks/Task.cpp */
 
 #include "Task.hpp"
+#include <stdio.h>
 
 #include <vizkit3d/ColorConversionHelper.hpp>
 
@@ -12,6 +13,8 @@ using namespace tofcamera_mesasr;
 Task::Task(std::string const& name)
     : TaskBase(name), m_driver(0)
 {
+ ir_frame = 0;
+ distance_frame = 0;
 }
 
 Task::Task(std::string const& name, RTT::ExecutionEngine* engine)
@@ -39,10 +42,26 @@ bool Task::configureHook()
     m_driver = new tofcamera_mesasr::SwissRangerDriver();
 
     // open camera
-    if( !m_driver->openUSB(0) )
+    // get interface type
+    if ( _interface.value() == "USB" )
     {
-        RTT::log(RTT::Error) << "SwissRanger device could not be opened." << RTT::endlog();
-        return false;
+        if( !m_driver->openUSB(0) )
+        {
+            RTT::log(RTT::Error) << "SwissRanger (USB) device could not be opened." << RTT::endlog();
+            return false;
+        }
+    }
+    else if  ( _interface.value() == "ETHERNET" )
+    {
+        if( !m_driver->openEthernet(_ip_address.value()) )
+        {
+            RTT::log(RTT::Error) << "SwissRanger (Ethernet) device could not be opened." << RTT::endlog();
+            return false;
+        }
+    }
+    else {
+            RTT::log(RTT::Error) << "Interface type not supported or recognized. SwissRanger device could not be opened." << RTT::endlog();
+            return false;
     }
 
     // set acquire mode
@@ -198,15 +217,60 @@ void Task::updateHook()
             m_driver->getRows(scan.rows);
             m_driver->getCols(scan.cols);
             // TODO: the data depth can be changed later
-            scan.data_depth = 16;       
-            m_driver->getDistanceImage( (std::vector<uint16_t>*) &scan.distance_image );
-            m_driver->getAmplitudeImage( (std::vector<uint16_t>*) &scan.amplitude_image );
-            m_driver->getConfidenceImage( (std::vector<uint16_t>*) &scan.confidence_image );
+            scan.data_depth = 16;
+		
+	    // Because orogen can't handle 16 bit vectors, the scan types have to be 8 bit. So for
+	    // now we set up new vector<uint16_t> pointers to each image because this is what getDistanceImage,
+	    // GetAmplitudeImage and GetConfidenceImage are expecting.
+            std::vector<uint16_t>* distance_image16 = (std::vector<uint16_t>*)&scan.distance_image;
+	    std::vector<uint16_t>* amplitude_image16 = (std::vector<uint16_t>*)&scan.amplitude_image;
+	    std::vector<uint16_t>* confidence_image16 = (std::vector<uint16_t>*)&scan.confidence_image;
+
+            m_driver->getDistanceImage(distance_image16);
+            m_driver->getAmplitudeImage(amplitude_image16);
+            m_driver->getConfidenceImage(confidence_image16);
             m_driver->getPointcloudDouble(scan.coordinates_3D);
 
             scan.time = capture_time;
 
-            _tofscan.write(scan);           
+
+	    size_t width = scan.cols;
+            size_t height = scan.rows;
+
+	     if(!ir_frame){
+                ir_frame = new base::samples::frame::Frame(width,height,16,base::samples::frame::MODE_GRAYSCALE);
+           }
+	    size_t bpp_grayscale = 2;
+	    char dataChar[width*height*bpp_grayscale];
+	    
+	    for(int i = 0; i<width*height; i++){
+		(*amplitude_image16)[i] = (*amplitude_image16)[i] << 2;
+		dataChar[2*i] = (*amplitude_image16)[i] & 0x00FF;
+		dataChar[2*i+1] = (*amplitude_image16)[i] >> 8;
+	    }
+
+	    ir_frame->setImage(dataChar,width*height*bpp_grayscale);
+            ir_frame->time = capture_time;
+            ir_frame_p.reset(ir_frame);
+            _ir_frame.write(ir_frame_p);
+
+	    if(!distance_frame){
+                distance_frame = new base::samples::frame::Frame		(width,height,16,base::samples::frame::MODE_GRAYSCALE);
+              }		
+
+	    for(int i = 0; i<width*height; i++){
+		(*distance_image16)[i] = (*distance_image16)[i] << 2;
+		dataChar[2*i] = (*distance_image16)[i] & 0x00FF;
+		dataChar[2*i+1] = (*distance_image16)[i] >> 8;
+	    }
+		
+	    distance_frame->setImage(dataChar,width*height*bpp_grayscale);
+            distance_frame->time = capture_time;
+            distance_frame_p.reset(distance_frame);
+            _distance_frame.write(distance_frame_p);
+
+
+            _tofscan.write(scan);
         }
 
         // TODO: add float and ushort pointcloud to the ports

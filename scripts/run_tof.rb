@@ -11,9 +11,9 @@ Orocos.run 'tofcamera_mesasr::Task' => 'tofcamera_mesasr' do
 
     swissranger = Orocos.name_service.get 'tofcamera_mesasr'
 
-    swissranger.acquisition_mode = 'AM_COR_FIX_PTRN|AM_DENOISE_ANF|AM_CONF_MAP|AM_MEDIAN'
+#    swissranger.acquisition_mode = 'AM_COR_FIX_PTRN|AM_DENOISE_ANF|AM_CONF_MAP|AM_MEDIAN'
     swissranger.timeout = 3000
-    swissranger.integration_time = 150
+    swissranger.integration_time = 255
     swissranger.modulation_frequency = :MF_15MHz
     swissranger.min_int_time = 255
     swissranger.amplitude_threshold = 50
@@ -24,7 +24,10 @@ Orocos.run 'tofcamera_mesasr::Task' => 'tofcamera_mesasr' do
 
     swissranger.start
 
-    Vizkit.display swissranger.pointcloud
-
+    Vizkit.display swissranger
+    Vizkit.display swissranger.ir_frame
+#    Vizkit.display converter 
     Vizkit.exec
+	Readline::readline("Press ENTER to exit\n")do
+	end
 end

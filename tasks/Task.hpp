@@ -37,6 +37,10 @@ namespace tofcamera_mesasr {
 	friend class TaskBase;
     protected:
         tofcamera_mesasr::SwissRangerDriver *m_driver;
+        RTT::extras::ReadOnlyPointer<base::samples::frame::Frame> ir_frame_p;
+	base::samples::frame::Frame *ir_frame;
+	RTT::extras::ReadOnlyPointer<base::samples::frame::Frame> distance_frame_p;
+	base::samples::frame::Frame *distance_frame;
 
     public:
         /** TaskContext constructor for Task
