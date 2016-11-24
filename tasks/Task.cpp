@@ -218,9 +218,14 @@ void Task::updateHook()
             m_driver->getCols(scan.cols);
             // TODO: the data depth can be changed later
             scan.data_depth = 16;
-            m_driver->getDistanceImage(&scan.distance_image );
-            m_driver->getAmplitudeImage(&scan.amplitude_image );
-            m_driver->getConfidenceImage(&scan.confidence_image );
+		
+            std::vector<uint16_t>* distance_image16 = (std::vector<uint16_t>*)&scan.distance_image;
+	    std::vector<uint16_t>* amplitude_image16 = (std::vector<uint16_t>*)&scan.amplitude_image;
+	    std::vector<uint16_t>* confidence_image16 = (std::vector<uint16_t>*)&scan.confidence_image;
+
+            m_driver->getDistanceImage(distance_image16);
+            m_driver->getAmplitudeImage(amplitude_image16);
+            m_driver->getConfidenceImage(confidence_image16);
             m_driver->getPointcloudDouble(scan.coordinates_3D);
 
             scan.time = capture_time;
@@ -236,9 +241,9 @@ void Task::updateHook()
 	    char dataChar[width*height*bpp_grayscale];
 	    
 	    for(int i = 0; i<width*height; i++){
-		scan.amplitude_image[i] = scan.amplitude_image[i] << 2;
-		dataChar[2*i] = scan.amplitude_image[i] & 0x00FF;
-		dataChar[2*i+1] = scan.amplitude_image[i] >> 8;
+		(*amplitude_image16)[i] = (*amplitude_image16)[i] << 2;
+		dataChar[2*i] = (*amplitude_image16)[i] & 0x00FF;
+		dataChar[2*i+1] = (*amplitude_image16)[i] >> 8;
 	    }
 
 	    ir_frame->setImage(dataChar,width*height*bpp_grayscale);
@@ -251,9 +256,9 @@ void Task::updateHook()
               }		
 
 	    for(int i = 0; i<width*height; i++){
-		scan.distance_image[i] = scan.distance_image[i] << 2;
-		dataChar[2*i] = scan.distance_image[i] & 0x00FF;
-		dataChar[2*i+1] = scan.distance_image[i] >> 8;
+		(*distance_image16)[i] = (*distance_image16)[i] << 2;
+		dataChar[2*i] = (*distance_image16)[i] & 0x00FF;
+		dataChar[2*i+1] = (*distance_image16)[i] >> 8;
 	    }
 		
 	    distance_frame->setImage(dataChar,width*height*bpp_grayscale);
